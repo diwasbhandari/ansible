@@ -1,0 +1,37 @@
+---
+- hosts: fileserver
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: Creates directory /var/www/file/software
+    file:
+      path: /var/www/file/software
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: Creates directory /var/www/file/software/integrate
+    file:
+      path: /var/www/file/software/integrate
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: Copy the something from local to remote
+    synchronize:
+      mode: push
+      src: /home/lrebelo/Public/integrateService_20191031a.zip
+      dest: /var/www/file/software/integrate/
+
+  - name: changes permissions of contents in /var/www/file/software/integrate
+    file:
+      path: /var/www/file/software/integrate
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+      recurse: yes

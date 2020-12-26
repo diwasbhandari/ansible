@@ -1,0 +1,39 @@
+module.exports = {
+  /**
+   * Application configuration section
+   * http://pm2.keymetrics.io/docs/usage/application-declaration/
+   */
+  apps : [{
+    name        : "{{ item.demo_folder }}",
+    script      : "/var/www/{{ item.demo_folder }}/ds-player/app.js",
+    log_date_format : "YYYY-MM-DD HH:mm Z",
+    env_prod_https : {
+       "NODE_ENV": "prod-https"
+    },
+    env_dev_https : {
+       "NODE_ENV": "dev-https"
+    },
+    env_robbie_dev : {
+      "NODE_ENV": "robbie-dev",
+    },
+    env_antonio_dev : {
+      "NODE_ENV": "antonio-dev",
+    },
+    env_luis_dev : {
+      "NODE_ENV": "luis-dev",
+    },
+    env_luis_test : {
+      "NODE_ENV": "luis-test",
+    },
+    env_vm_server : {
+      "NODE_ENV": "vm-server",
+    },
+    env_online_demo: {
+      "NODE_ENV": "demo-online",
+      "PORT": "{{ item.demo_port }}",
+      "MAC": "{{ item.demo_mac }}",
+      "ADMIN_SERVER": "https://admin.jayex.net",
+      "FOLDER_LOCATION": "/var/www/{{ item.demo_folder }}"
+    }
+  }]
+};

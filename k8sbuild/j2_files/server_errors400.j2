@@ -1,0 +1,12 @@
+server {
+        listen 443 ssl;
+
+        include snippets/certificate.conf;
+        include snippets/ssl_settings.conf;
+
+        error_page 404 /error400.html;
+        location = /error.html {
+                root /var/www/errors/;
+                internal;
+    }
+}

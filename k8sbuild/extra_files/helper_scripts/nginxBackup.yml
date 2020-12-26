@@ -1,0 +1,18 @@
+---
+- hosts: "{{ host }}"
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: Install rsync package
+    apt:
+      name: rsync
+      update_cache: yes
+      state: present
+
+  - name: Copy nginx folder
+    synchronize:
+      mode: pull
+      src: /etc/nginx/*
+      dest: /media/lrebelo/3759025e-69ed-4b46-b28d-d1a5cb19d8b0/tmp/{{ folder_name }}/

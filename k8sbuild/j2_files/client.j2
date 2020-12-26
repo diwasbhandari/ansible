@@ -1,0 +1,14 @@
+server {
+
+    listen 443 ssl http2;
+    server_name {{ client_number }}.jayex.net;
+
+    include snippets/certificate.conf;
+    include snippets/ssl_settings.conf;
+    access_log            /var/log/nginx/{{ client_number }}.access.log;
+
+    location / {
+	      include snippets/proxy_headers.conf;
+      	proxy_pass          	http://{{ client_ip }}:{{ pm2_port }};
+    }
+}

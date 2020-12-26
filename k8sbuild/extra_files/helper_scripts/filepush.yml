@@ -1,0 +1,18 @@
+---
+- hosts: "{{ host }}"
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: Install rsync package
+    apt:
+      name: rsync
+      update_cache: yes
+      state: present
+
+  - name: Copy the something from local to remote
+    synchronize:
+      mode: push
+      src: /media/lrebelo/7B7D2B8D42DE1BBA/tmp/823641155timeManagement/
+      dest: /home/ansible/

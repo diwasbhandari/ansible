@@ -1,0 +1,176 @@
+---
+- hosts: nginxs
+  remote_user: cansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+
+  - name: Open UFW port 80
+    ufw: 
+      rule: allow 
+      port: 80
+
+  - name: Open UFW port 443
+    ufw: 
+      rule: allow 
+      port: 443
+
+  - name: Install nginx package
+    apt:
+      name: nginx
+      update_cache: yes
+      state: present
+
+  - name: Create file /etc/nginx/snippets/ssl_settings.conf
+    file:
+      path: "/etc/nginx/snippets/ssl_settings.conf"
+      state: touch
+
+  - name: Add ssl_settings snippet for nginx
+    lineinfile:
+      dest: /etc/nginx/snippets/ssl_settings.conf
+      line: "{{ item.line }}"
+      state: present
+    with_items:
+      - { line: "ssl on;" }
+      - { line: "ssl_session_cache  builtin:1000  shared:SSL:10m;" }
+      - { line: "ssl_protocols TLSv1 TLSv1.1 TLSv1.2;"}
+      - { line: "ssl_ciphers HIGH:!aNULL:!MD5;"}
+      - { line: "ssl_prefer_server_ciphers on;"}
+
+  - name: Create file /etc/nginx/snippets/proxy_headers.conf
+    file:
+      path: "/etc/nginx/snippets/proxy_headers.conf"
+      state: touch
+
+  - name: Add proxy_headers snippet for nginx
+    lineinfile:
+      dest: /etc/nginx/snippets/proxy_headers.conf
+      line: "{{ item.line }}"
+      state: present
+    with_items:
+      - { line: "proxy_set_header        Host $host;" }
+      - { line: "proxy_set_header        X-Real-IP $remote_addr;" }
+      - { line: "proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;"}
+      - { line: "proxy_set_header        X-Forwarded-Proto $scheme;"}
+      - { line: "client_max_body_size 	500M;"}
+
+  - name: Create file /etc/nginx/snippets/certificate.conf
+    file:
+      path: "/etc/nginx/snippets/certificate.conf"
+      state: touch
+
+  - name: Add certificate snippet for nginx
+    lineinfile:
+      dest: /etc/nginx/snippets/certificate.conf
+      line: "{{ item.line }}"
+      state: present
+    with_items:
+      - { line: "# go daddy certificate" }
+      - { line: " " }
+      - { line: "ssl_certificate           /etc/nginx/certificate/19cdf6c80d553c28.crt;"}
+      - { line: "ssl_certificate_key       /etc/nginx/certificate/jayex.key;"}
+
+  - name: Creates directory /var/www/errors/
+    file:
+      path: /var/www/errors/
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: Copy jayex default site to nginx
+    copy:
+      src: extra_files/nginxjayex
+      dest: /etc/nginx/sites-enabled/jayex
+      remote_src: no
+
+  - name: Copy 'error400.html' to nginx
+    copy:
+      src: extra_files/error400.html
+      dest: /var/www/errors/error400.html
+      remote_src: no
+
+  - name: Copy 'error500.html' to nginx
+    copy:
+      src: extra_files/error500.html
+      dest: /var/www/errors/error500.html
+      remote_src: no
+
+  - name: save server_errors400 in sites-enabled
+    template:
+     src: j2_files/server_errors400.j2
+     dest: '/etc/nginx/sites-enabled/server_errors400'
+     owner: root
+     group: root
+
+  - name: save server_errors500 in sites-enabled
+    template:
+     src: j2_files/server_errors500.j2
+     dest: '/etc/nginx/sites-enabled/server_errors500'
+     owner: root
+     group: root
+
+  - name: Creates directory
+    file:
+      path: /etc/nginx/certificate
+      state: directory
+
+  - name: copy https_certs/jayex.key in the certificate folder
+    copy:
+     src: https_certs/jayex.key
+     dest: '/etc/nginx/certificate/jayex.key'
+     owner: root
+     group: root
+
+  - name: copy https_certs/19cdf6c80d553c28.crt in the certificate folder
+    copy:
+     src: https_certs/19cdf6c80d553c28.crt
+     dest: '/etc/nginx/certificate/19cdf6c80d553c28.crt'
+     owner: root
+     group: root
+
+  - name: remove default from sites-enabled
+    file:
+      state: absent
+      path: '/etc/nginx/sites-enabled/default'
+
+  - name: Restart nginx
+    systemd:
+      name: nginx
+      state: reloaded
+
+  - name: save nginxlogwipe script to the root home
+    template:
+     src: j2_files/nginxlogwipe.sh.j2
+     dest: '/root/wipe.sh'
+     owner: root
+     group: root
+
+  - name: Creates a cron file that triger a clean of the nginx logs
+    cron:
+      name: cron_nginx_wipe
+      weekday: 1
+      minute: 0
+      hour: 6
+      user: root
+      job: "bash /root/wipe.sh"
+
+  - name: Creates a cron file that triger a clean of nginx logs
+    cron:
+      name: cron_nginx_wipe
+      weekday: 3
+      minute: 0
+      hour: 6
+      user: root
+      job: "bash /root/wipe.sh"
+
+  - name: Creates a cron file that triger a clean of nginx logs
+    cron:
+      name: cron_nginx_wipe
+      weekday: 5
+      minute: 0
+      hour: 6
+      user: root
+      job: "bash /root/wipe.sh"

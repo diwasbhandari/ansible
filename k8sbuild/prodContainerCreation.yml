@@ -1,0 +1,27 @@
+---
+- hosts: k8sMasters
+  remote_user: cansible
+  become: yes
+  become_method: sudo
+
+  vars:
+  - client_number: 1
+  - client_ip: "{{ hostvars['nginx'].ansible_host }}"
+  - g_key: dLDKfqHg24UP_5nxX7Dii9wV5gDxwXxtkoa
+  - g_secret: 5nxZootTee6T8P6K6u56EU
+
+  tasks:
+  - name: save deploymnet file
+    template:
+     src: j2_files/prodDeployment.yml.j2
+     dest: '/home/cansible/connect/deployment/c-{{ client_number }}.yml'
+     owner: cansible
+     group: cansible
+
+  - name: create deployment
+    command: 'kubectl create -f c-{{ client_number }}.yml'
+    become: yes
+    become_user: cansible
+    args:
+      chdir: /home/cansible/connect/deployment/
+  

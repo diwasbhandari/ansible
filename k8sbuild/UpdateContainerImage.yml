@@ -1,0 +1,11 @@
+---
+- hosts: k8sMasters
+  remote_user: cansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: update deployment image
+    command: 'kubectl set image deployment/c-{{ client_number }} connect=jayex/connect:{{ image_version }}'
+    become: yes
+    become_user: cansible

@@ -1,0 +1,68 @@
+---
+- hosts: all
+  remote_user: cansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+  
+  - name: Update repositories cache 
+    apt:
+      update_cache: yes
+
+  - name: install ntp
+    apt: 
+      name: ntp
+      state: present
+      update_cache: yes
+  
+  - name: Install ufw package
+    apt:
+      name: ufw
+      state: present
+
+  - name: Set default ufw rules to allow all outgoing connections
+    ufw:
+      policy: allow
+
+  - name: Set default ufw rules to deny all incoming connections and enable ufw
+    ufw:
+      policy: deny
+
+   
+  - name: Allow ssh from cansible server 
+    ufw:
+      rule: allow 
+      port: 22
+      src: "{{ cansibleIP }}" 
+
+  - name: Set logging
+    ufw: 
+      logging: 'on'
+
+  - name: Allow everything and enable UFW
+    ufw:
+      state: enabled
+
+  - name: Install fail2ban package
+    apt:
+      name: fail2ban
+      state: present
+
+  - name: Create jayex group
+    group:
+      name: jayex
+
+  - name: Create diwas user
+    user:
+      name: dbhandari
+      password: $1$eRaqRZl8$Im3lb8wZeSD3n9XbqTf.d1
+      groups: jayex
+      state: present
+      shell: /bin/bash
+
+  - name: Add user diwas to sudoers
+    lineinfile:
+      dest: /etc/sudoers
+      state: present
+      line: 'dbhandari ALL=(ALL:ALL) ALL'

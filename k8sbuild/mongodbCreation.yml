@@ -1,0 +1,86 @@
+---
+- hosts: mongodbs
+  remote_user: cansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+
+  - name: Install gnupg
+    apt:
+      name: gnupg
+      update_cache: yes
+      state: latest
+
+  - name: Install build-essential python-dev and python-pip
+    apt:
+      name: "{{item}}"
+    with_items: 
+      - build-essential
+      - python-dev
+      - python-pip
+
+  - name: Add key for Mongo repo for mongo 4.2
+    apt_key:
+      url: https://www.mongodb.org/static/pgp/server-4.2.asc
+      state: present
+
+  - name: Create a new resource list for Mongo 4.2
+    apt_repository:
+     repo: deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main
+     state: present
+     filename: mongodb-org-4.2
+     validate_certs: no
+
+  - name: Install mongo and update resource list
+    apt:
+      name: mongodb-org
+      update_cache: yes
+      state: latest
+      allow_unauthenticated: yes
+
+  - name: Start mongodb (debian)
+    systemd: 
+      name: mongod
+      enabled: yes
+      state: started 
+
+  - name: enable mongodb (debian)
+    command: systemctl enable mongod
+
+  - name: Install the latest pymongo package
+    pip: 
+      name: pymongo 
+      state: latest 
+      use_mirrors: no
+
+  - mongodb_user:
+      database: admin
+      name: connectUser
+      password: LsR34Ytgr45!!
+      roles: readWriteAnyDatabase
+      state: present
+
+  - name: replace /etc/mongd.conf
+    template:
+      src: j2_files/mongoDB.conf.j2
+      dest: /etc/mongod.conf
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Start mongodb (debian)
+    systemd: 
+      name: mongod
+      state: reloaded
+
+  
+
+
+  
+      
+
+
+  
+
+  

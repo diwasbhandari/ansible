@@ -1,0 +1,11 @@
+# /bin/bash
+cd /var/log/nginx/
+for f in $(ls /var/log/nginx/*.log.*);
+do
+rm $f
+done
+
+for g in $(ls /var/log/nginx/*.access.log);
+do
+rm $g
+done

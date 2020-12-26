@@ -1,0 +1,37 @@
+[all:vars]
+diwasIP=
+cansibleIP=
+
+[admin]
+
+
+
+[fileservers]
+instanceFileserver ansible_host=
+adminFileserver ansible_host=
+
+[nginxs]
+nginx ansible_host=
+ausnginx ansible_host=
+
+[mongodbs]
+mongodb ansible_host=
+ausmongodb ansible_host=
+
+[k8sMasters]
+k8sMaster ansible_host=
+
+[k8sWorkers]
+k8sWorker1 ansible_host=
+k8sWorker2 ansible_host=
+k8sWorker3 ansible_host=
+k8sWorker4 ansible_host=
+k8sWorker5 ansible_host=
+k8sWorker6 ansible_host=
+k8sWorker7 ansible_host=
+k8sWorker8 ansible_host=
+k8sWorker9 ansible_host=
+k8sWorker10 ansible_host=
+k8sWorker11 ansible_host=
+k8sWorker12 ansible_host=
+ausk8sWorker1 ansible_host=

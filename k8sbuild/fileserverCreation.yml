@@ -1,0 +1,256 @@
+---
+- hosts: adminFileserver instanceFileserver
+  remote_user: cansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+
+  - name: Open UFW port 80
+    ufw: 
+      rule: allow 
+      port: 80
+
+  - name: Open UFW port 443
+    ufw: 
+      rule: allow 
+      port: 443
+
+  - name: allow relevant access for filetransfer ports 22 
+    ufw:
+      rule: allow
+      proto: tcp
+      port: 22
+      src: "{{ item }}"
+    with_items:
+      - "{{ hostvars['k8sWorker1'].ansible_host }}"
+      - "{{ hostvars['k8sWorker2'].ansible_host }}"
+      - "{{ hostvars['k8sMaster'].ansible_host }}"
+
+  - name: Install nginx package
+    apt:
+      name: nginx
+      update_cache: yes
+      state: present
+
+  - name: Create connect user
+    user:
+      name: connect
+      password: $6$jKxQgyToUZBqYk3a$5cRImo9Xvx0LqYLkbV67TF9VGhIGzfAhY523CVqR0DD.iXsljpXyVEkZzGDt4NscFbK7PVc20FhDev4ljeFJ/0
+      groups: www-data
+      state: present
+
+  - file:
+      path: /var/www/
+      mode: "u=rwx,g=rwx,o=rwx"
+      state: directory
+    become: yes
+    become_user: root
+
+  - name: Give all a+rwx to /var/www
+    file:
+      path: /var/www/
+      mode: "u=rwx,g=rwx,o=rwx"
+      state: directory
+    become: yes
+    become_user: root
+
+  - name: Creates directory /var/www/file
+    file:
+      path: /var/www/file
+      state: directory
+      owner: connect
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: Creates directory /var/www/file/connect
+    file:
+      path: /var/www/file/connect
+      state: directory
+      owner: connect
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: Creates directory /var/www/file/email
+    file:
+      path: /var/www/file/connect/email
+      state: directory
+      owner: connect
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: Copy 'appointuit_white.png' to fileserver
+    copy:
+      src: extra_files/appointuit_white.png
+      dest: /var/www/file/connect/email/appointuit_white.png
+      remote_src: no
+
+  - name: Copy 'background_small.png' to fileserver
+    copy:
+      src: extra_files/background_small.png
+      dest: /var/www/file/connect/email/background_small.png
+      remote_src: no
+
+  - name: Copy 'background.png' to fileserver
+    copy:
+      src: extra_files/background.png
+      dest: /var/www/file/connect/email/background.png
+      remote_src: no
+
+  - name: Copy 'connect_blue_baloon_25_radius.png' to fileserver
+    copy:
+      src: extra_files/connect_blue_baloon_25_radius.png
+      dest: /var/www/file/connect/email/connect_blue_baloon_25_radius.png
+      remote_src: no
+
+  - name: Copy 'connect_blue_baloon.png' to fileserver
+    copy:
+      src: extra_files/connect_blue_baloon.png
+      dest: /var/www/file/connect/email/connect_blue_baloon.png
+      remote_src: no
+
+  - name: Copy 'connect_white.png' to fileserver
+    copy:
+      src: extra_files/connect_white.png
+      dest: /var/www/file/connect/email/connect_white.png
+      remote_src: no
+
+  - name: Creates directory /var/www/file/audio
+    file:
+      path: /var/www/file/audio
+      state: directory
+      owner: connect
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: Creates directory /var/www/file/images
+    file:
+      path: /var/www/file/images
+      state: directory
+      owner: connect
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: Creates directory /var/www/file/images/preview
+    file:
+      path: /var/www/file/images/preview
+      state: directory
+      owner: connect
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: Creates directory /var/www/file/scenes
+    file:
+      path: /var/www/file/scenes
+      state: directory
+      owner: connect
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: Creates directory /var/www/file/videos
+    file:
+      path: /var/www/file/videos
+      state: directory
+      owner: connect
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: Creates directory /var/www/file/videos/preview
+    file:
+      path: /var/www/file/videos/preview
+      state: directory
+      owner: connect
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: Copy 'beep.mp3' to fileserver
+    copy:
+      src: extra_files/sound_files/beep.mp3
+      dest: /var/www/file/audio/beep.mp3
+      remote_src: no
+
+  - name: Copy 'Blooper-sound-effect.png' to fileserver
+    copy:
+      src: extra_files/sound_files/Blooper-sound-effect.mp3
+      dest: /var/www/file/audio/Blooper-sound-effect.mp3
+      remote_src: no
+
+  - name: Copy 'Connection-established-sound-effect.mp3' to fileserver
+    copy:
+      src: extra_files/sound_files/Connection-established-sound-effect.mp3
+      dest: /var/www/file/audio/Connection-established-sound-effect.mp3
+      remote_src: no
+
+  - name: Copy 'Email-notification-sound.mp3' to fileserver
+    copy:
+      src: extra_files/sound_files/Email-notification-sound.mp3
+      dest: /var/www/file/audio/Email-notification-sound.mp3
+      remote_src: no
+
+  - name: Copy 'connect_white.png' to fileserver
+    copy:
+      src: extra_files/sound_files/Wrong-buzzer.mp3
+      dest: /var/www/file/audio/Wrong-buzzer.mp3
+      remote_src: no
+
+  - name: Creates directory /var/www/file/software
+    file:
+      path: /var/www/file/software
+      state: directory
+      owner: connect
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: Creates directory /var/www/file/software/integrate
+    file:
+      path: /var/www/file/software/integrate
+      state: directory
+      owner: connect
+      group: www-data
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: save fileserver in sites-enabled
+    template:
+      src: j2_files/fileserver.j2
+      dest: '/etc/nginx/sites-enabled/fileserver'
+      owner: root
+      group: root
+
+  - name: Remove default from sites-enabled
+    file:
+      state: absent
+      path: '/etc/nginx/sites-enabled/default'
+
+  - name: Restart nginx
+    systemd:
+      name: nginx
+      state: reloaded
+
+  - name: Creates directory /home/connect/.ssh
+    file:
+      path: /home/connect/.ssh
+      state: directory
+      owner: connect
+      group: connect
+      mode: "u=rwx,g=rwx,o=r"
+
+  - name: Copy the id_rsa.pub to /home/connect/.ssh
+    copy:
+     src: https_certs/id_rsa.pub
+     dest: '/home/connect/.ssh/id_rsa.pub'
+     owner: connect
+     group: connect
+
+  - name: Create the authorized keys file
+    copy:
+     src: /home/connect/.ssh/id_rsa.pub
+     dest: '/home/connect/.ssh/authorized_keys'
+     owner: connect
+     group: connect
+
+  - name: install ffmpeg
+    apt:
+      name: ffmpeg
+      update_cache: yes
+      state: latest
+  

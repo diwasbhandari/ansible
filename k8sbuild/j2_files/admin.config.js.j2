@@ -1,0 +1,33 @@
+module.exports ={
+  /**
+   * Application configuration section
+   * http://pm2.keymetrics.io/docs/usage/application-declaration/
+   */
+  apps: [
+    // First application
+    {
+      name: 'connect-admin',
+      script: 'connect_admin/bin/www',
+      env: {
+        COMMON_VARIABLE: 'true'
+      },
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 3000,
+        MONGODB_URI: "mongodb://localhost:27017/connect-admin",
+        "MONGODB_SESSION": "mongodb://localhost:27017/connect_mongodb_session_client",
+        JWT_SECRET: "seidnyuaeifybeiouxw90eb7rb376r7b59034574382bn0572340ndtgr76ft9YesIamAMightyPassword",
+        SESSION_SECRET: "Shewastooshorttoseeoverthefence",
+        MAILGUN_KEY: "key-6af7b223258fc2ce993d2c6d7219a887",
+        MAILGUN_DOMAIN: "mail.jayex.net",
+        USEREMAIL: "system@jayex.com",
+        USERPASSWORD: "mLyJ7P01$",
+        HOSTEMAIL: "mail.jayex.com",
+        RUN_USER: "connect",
+        ANSIBLE_FOLDER_LOCATION: "/home/ansible/connectservers/admin_scripts",
+        SERVER_URL: "{{ fileserver_ip }}",
+        SERVER_URL_NAME: "https://fileserver.jayex.net"
+      }
+    }
+  ]
+}

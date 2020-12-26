@@ -1,0 +1,38 @@
+module.exports = {
+  /**
+   * Application configuration section
+   * http://pm2.keymetrics.io/docs/usage/application-declaration/
+   */
+  apps: [{
+    name: '{{ item.demo_folder }}',
+    script: './bin/www',
+    env_prod_live: {
+      'NODE_ENV': 'prod-live'
+    },
+    env_prod_test: {
+      'NODE_ENV': 'prod-test'
+    },
+    env_test_luis: {
+      'NODE_ENV': 'test-luis'
+    },
+    env_test_antonio: {
+      'NODE_ENV': 'test-antonio'
+    },
+    env_dev: {
+      'NODE_ENV': 'development',
+    },
+    env_dev_robbie: {
+      'NODE_ENV': 'dev-robbie'
+    },
+    env_demo: {
+      'NODE_ENV': 'demo',
+    },
+    env_online_demo: {
+      "NODE_ENV": "demo-online",
+      "PORT": "{{ item.demo_port }}",
+      "MACADDRESS": "{{ item.demo_mac }}",
+      "MONGODB_URI": "mongodb://localhost:27017/{{ item.demo_folder }}",
+      "ADMIN_SERVER": "https://admin.jayex.net"
+    }
+  }]
+};

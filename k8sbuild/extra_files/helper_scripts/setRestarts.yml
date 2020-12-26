@@ -1,0 +1,15 @@
+---
+- hosts: client1 client2 client3 client4 client5 client6 client7 client8
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: Creates a cron to restart the pm2 once every 10 days.
+    cron:
+      name: pm2logwipe
+      day: "*10"
+      minute: "0"
+      hour: "3"
+      user: connect
+      job: "pm2 restart all"

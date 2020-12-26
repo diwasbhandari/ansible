@@ -1,0 +1,51 @@
+---
+- hosts: "{{ host }}"
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: Install rsync package
+    apt:
+      name: rsync
+      update_cache: yes
+      state: present
+
+  - name: create folder {{ folder_name }} for backup
+    file:
+      path: ./{{ folder_name }}
+      state: directory
+
+  - name : mongodump to {{ folder_name }}
+    command: 'mongodump'
+    args:
+      chdir: ./{{ folder_name }}
+
+  - name: Copy the users file from remote
+    synchronize:
+      mode: pull
+      src: ./{{ folder_name }}/*
+      dest: /media/lrebelo/3759025e-69ed-4b46-b28d-d1a5cb19d8b0/tmp/{{ folder_name }}/
+
+  - name: Copy all pm2 files
+    synchronize:
+      mode: pull
+      src: /var/www/*.js
+      dest: /media/lrebelo/3759025e-69ed-4b46-b28d-d1a5cb19d8b0/tmp/{{ folder_name }}/
+
+  - name: Copy the pm2 dump file from remote
+    synchronize:
+      mode: pull
+      src: /home/connect/.pm2/dump.pm2
+      dest: /media/lrebelo/3759025e-69ed-4b46-b28d-d1a5cb19d8b0/tmp/{{ folder_name }}/
+      
+  - name: Copy the media file from remote
+    synchronize:
+      mode: pull
+      src: /var/www/media/*
+      dest: /media/lrebelo/3759025e-69ed-4b46-b28d-d1a5cb19d8b0/tmp/{{ folder_name }}/media/
+
+  - name: delete folder {{ folder_name }}
+    file:
+      path: ./{{ folder_name }}
+      state: absent

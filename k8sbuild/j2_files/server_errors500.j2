@@ -1,0 +1,12 @@
+server {
+        listen 443 ssl;
+
+        include snippets/certificate.conf;
+        include snippets/ssl_settings.conf;
+
+        error_page 500 501 502 503 504 505 /error500.html;
+        location = /error.html {
+                root /var/www/errors/;
+                internal;
+    }
+}

@@ -1,0 +1,21 @@
+---
+- hosts: k8sMasters
+  remote_user: cansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: save deploymnet file
+    template:
+     src: j2_files/prodDeploymentAus.yml.j2
+     dest: '/home/cansible/connect/deployment/c-{{ client_number }}.yml'
+     owner: cansible
+     group: cansible
+
+  - name: create deployment
+    command: 'kubectl create -f c-{{ client_number }}.yml'
+    become: yes
+    become_user: cansible
+    args:
+      chdir: /home/cansible/connect/deployment/
+  

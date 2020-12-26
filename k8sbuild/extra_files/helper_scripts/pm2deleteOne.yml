@@ -1,0 +1,11 @@
+---
+- hosts: "{{ host }}"
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name : delete one pm2
+    command: 'pm2 delete {{ client_number }}'
+    become: yes
+    become_user: connect

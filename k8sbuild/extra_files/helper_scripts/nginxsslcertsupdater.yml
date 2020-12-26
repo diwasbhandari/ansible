@@ -1,0 +1,45 @@
+---
+- hosts: nginx
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: delete old SSL key
+    file:
+      path: /etc/nginx/certificate/jayex.key
+      state: absent
+
+  - name: delete old SSL Cert
+    file:
+      path: /etc/nginx/certificate/820e5bed9d8cb480.crt
+      state: absent
+
+  - name: copy new https_certs/jayex.key to /etc/nginx/certificate/
+    copy:
+     src: ../../https_certs/jayex.key
+     dest: '/etc/nginx/certificate/jayex.key'
+     owner: root
+     group: root
+
+  - name: copy new https_certs/19cdf6c80d553c28.crt to /etc/nginx/certificate/
+    copy:
+     src: ../../https_certs/19cdf6c80d553c28.crt
+     dest: '/etc/nginx/certificate/19cdf6c80d553c28.crt'
+     owner: root
+     group: root
+
+  - name: copy new https_certs/gd_bundle-g2-g1.crt to /etc/nginx/certificate/
+    copy:
+     src: ../../https_certs/gd_bundle-g2-g1.crt
+     dest: '/etc/nginx/certificate/gd_bundle-g2-g1.crt'
+     owner: root
+     group: root
+
+  - name: Update certificate snippet for nginx
+    lineinfile:
+      dest: /etc/nginx/snippets/certificate.conf
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+    with_items:
+      - { regexp: '^ssl_certificate\s', line: "ssl_certificate           /etc/nginx/certificate/19cdf6c80d553c28.crt;" }

@@ -1,0 +1,21 @@
+module.exports ={
+  /**
+   * Application configuration section
+   * http://pm2.keymetrics.io/docs/usage/application-declaration/
+   */
+  apps: [
+    {
+      name: 'microservice',
+      script: 'microservice/dist/main.js',
+
+      env: {
+        COMMON_VARIABLE: 'true'
+      },
+      env_production: {
+        NODE_ENV: 'production',
+        JWT_SECRET: "seidnyuaeifybeiouxw90eb7rb376r7b59034574382bn0572340ndtgr76ft9YesIamAMightyPassword",
+        PORT: 2900,
+      }
+    }
+  ]
+}

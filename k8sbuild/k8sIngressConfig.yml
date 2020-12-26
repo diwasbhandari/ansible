@@ -1,0 +1,25 @@
+- hosts: k8sMaster
+  become: yes
+  tasks:
+    
+    - name: install Ingress
+      become: yes
+      become_user: cansible
+      shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/mandatory.yaml >> ingress_setup.txt
+      args:
+        chdir: $HOME
+        creates: ingress_setup.txt
+
+    - name: install Ingress
+      become: yes
+      become_user: cansible
+      shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/provider/baremetal/service-nodeport.yaml >> ingress_bare_setup.txt
+      args:
+        chdir: $HOME
+        creates: ingress_bare_setup.txt
+
+
+
+
+
+        

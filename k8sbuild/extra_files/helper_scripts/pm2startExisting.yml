@@ -1,0 +1,26 @@
+---
+- hosts: "{{ host }}"
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+
+  vars:
+  - client_number: 1
+
+  tasks:
+  - name: start the existing pm2 file for {{ client_number }}
+    command: 'pm2 start {{ client_number }}.config.js --env=production'
+    become: yes
+    become_user: connect
+    args:
+      chdir: /var/www/
+
+  - name : pm2 save
+    command: 'pm2 save'
+    become: yes
+    become_user: connect
+
+  - name : pm2 stop
+    command: 'pm2 stop {{ client_number }}'
+    become: yes
+    become_user: connect

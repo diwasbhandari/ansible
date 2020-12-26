@@ -1,0 +1,13 @@
+---
+- hosts: k8sMasters
+  remote_user: cansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: create deployment
+    command: 'kubectl create -f c-{{ client_number }}.yml'
+    become: yes
+    become_user: cansible
+    args:
+      chdir: /home/cansible/connect/deployment/

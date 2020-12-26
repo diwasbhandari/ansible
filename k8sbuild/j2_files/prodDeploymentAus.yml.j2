@@ -1,0 +1,145 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: c-{{ client_number }}-ser
+  labels:
+    environment: production
+    run: c-{{ client_number }}-ser
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    name: node
+  selector:
+    app: c-{{ client_number }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: c-{{ client_number }}
+  labels:
+    environment: production
+    app: c-{{ client_number }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: c-{{ client_number }}
+  template:
+    metadata:
+      labels:
+        environment: production
+        app: c-{{ client_number }}
+    spec:
+      nodeSelector:
+        location: aus
+      containers:
+        - name: connect
+          image: jayex/connect:0.3
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+          - name: CUSTOMER_ID
+            value: "{{ client_number }}"
+          - name: NODE_ENV
+            valueFrom:
+              configMapKeyRef:
+                name: aus-env
+                key: NODE_ENV
+          - name: MONGODB_URI_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: aus-env
+                key: MONGODB_URI_USERNAME
+          - name: MONGODB_URI_IP
+            valueFrom:
+              configMapKeyRef:
+                name: aus-env
+                key: MONGODB_URI_IP
+          - name: ADMIN_URL
+            valueFrom:
+              configMapKeyRef:
+                name: aus-env
+                key: ADMIN_URL
+          - name: FILE_SERVER_URL
+            valueFrom:
+              configMapKeyRef:
+                name: aus-env
+                key: FILE_SERVER_URL
+          - name: FILE_SERVER_IP_USER
+            valueFrom:
+              configMapKeyRef:
+                name: aus-env
+                key: FILE_SERVER_IP_USER
+          - name: FILE_SERVER_IP
+            valueFrom:
+              configMapKeyRef:
+                name: aus-env
+                key: FILE_SERVER_IP
+          - name: MAILGUN_DOMAIN
+            valueFrom:
+              configMapKeyRef:
+                name: aus-env
+                key: MAILGUN_DOMAIN
+          - name: TWILIO_SID
+            valueFrom:
+              configMapKeyRef:
+                name: aus-env
+                key: TWILIO_SID
+          - name: ISDEBUG
+            valueFrom:
+              configMapKeyRef:
+                name: aus-env
+                key: ISDEBUG
+          - name: MONGODB_URI_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: prodsec
+                key: MONGODB_URI_PASSWORD
+          - name: JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: prodsec
+                key: JWT_SECRET
+          - name: MAILGUN_KEY
+            valueFrom:
+              secretKeyRef:
+                name: prodsec
+                key: MAILGUN_KEY
+          - name: TWILIO_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: prodsec
+                key: TWILIO_TOKEN
+          - name: GOOGLE_API
+            valueFrom:
+              secretKeyRef:
+                name: prodsec
+                key: GOOGLE_API
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: c-{{ client_number }}-ing
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/client-max-body-size: "500m"
+    nginx.ingress.kubernetes.io/proxy-body-size: "500m"
+
+spec:
+  rules:
+  - host: {{ client_number }}.jayex.net
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: c-{{ client_number }}-ser
+          servicePort: 3000
+
+
